@@ -30,9 +30,9 @@ public class OpenGateService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
 
-    private static final double MY_HOME_LATITUDE = 31.281266;
-    private static final double MY_HOME_LONGITUDE = 34.7991867;
-    private static final float MY_HOME_RADIUS = 150;
+    private static final double MY_HOME_LATITUDE = 31.281283;
+    private static final double MY_HOME_LONGITUDE = 34.798639;
+    private static final float MY_HOME_RADIUS = 200;
     private static final String MY_OPEN_GATE_PHONE_NUMBER = "tel:0543909269";
 
     //Intent Action
@@ -75,6 +75,7 @@ public class OpenGateService extends Service {
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), -1, intent, 0);
                 LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 lm.addProximityAlert(MY_HOME_LATITUDE, MY_HOME_LONGITUDE, MY_HOME_RADIUS, -1, pendingIntent);
+                Log.i("onLocationChanged","add Proximity Alert");
             }
         }
 
