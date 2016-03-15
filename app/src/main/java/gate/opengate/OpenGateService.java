@@ -32,7 +32,7 @@ public class OpenGateService extends Service {
 
     private static final double MY_HOME_LATITUDE = 31.281283;
     private static final double MY_HOME_LONGITUDE = 34.798639;
-    private static final float MY_HOME_RADIUS = 200;
+    private static final float MY_HOME_RADIUS = 500;
     private static final String MY_OPEN_GATE_PHONE_NUMBER = "tel:0543909269";
 
     //Intent Action
@@ -42,6 +42,7 @@ public class OpenGateService extends Service {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.i("onReceive","enter broadcast receiver");
             String key = LocationManager.KEY_PROXIMITY_ENTERING;
             boolean enteringArea = intent.getBooleanExtra(key, false);
             if (enteringArea) {
@@ -72,7 +73,8 @@ public class OpenGateService extends Service {
                 localBroadcastManager.registerReceiver(receiver, new IntentFilter(ACTION_FILTER));
 
                 Intent intent = new Intent(ACTION_FILTER);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), -1, intent, 0);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                        getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 lm.addProximityAlert(MY_HOME_LATITUDE, MY_HOME_LONGITUDE, MY_HOME_RADIUS, -1, pendingIntent);
                 Log.i("onLocationChanged","add Proximity Alert");

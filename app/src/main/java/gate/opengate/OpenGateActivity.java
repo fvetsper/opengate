@@ -1,9 +1,11 @@
 package gate.opengate;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -11,6 +13,7 @@ import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,10 +41,23 @@ public class OpenGateActivity extends Activity {
         }
     };
 
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            startActivity(intent);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity);
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+        localBroadcastManager.registerReceiver(receiver, new IntentFilter(Intent.ACTION_CALL));
+
         Intent intent = new Intent(this, OpenGateService.class);
         startService(intent);
     }
