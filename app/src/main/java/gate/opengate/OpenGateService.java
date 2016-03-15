@@ -30,10 +30,10 @@ public class OpenGateService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
 
-    private static final double MY_HOME_LATITUDE = 31.281283;
-    private static final double MY_HOME_LONGITUDE = 34.798639;
-    private static final float MY_HOME_RADIUS = 500;
-    private static final String MY_OPEN_GATE_PHONE_NUMBER = "tel:0543909269";
+    private static final double MY_HOME_LATITUDE = 0;
+    private static final double MY_HOME_LONGITUDE = 0;
+    private static final float MY_HOME_RADIUS = 0;
+    private static final String MY_OPEN_GATE_PHONE_NUMBER = "tel:0";
 
     //Intent Action
     private static final String ACTION_FILTER = "gate.opengate.OpenGateService";
