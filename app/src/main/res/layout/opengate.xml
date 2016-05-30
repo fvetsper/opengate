@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/background"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#A9A9A9">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="45dp"
+        android:gravity="center_horizontal"
+        android:paddingBottom="30dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView"
+            android:src="@drawable/icon1"
+            android:layout_weight="1"
+            android:paddingBottom="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Control Parking Lot Gate"
+            android:id="@+id/textView"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:textSize="80px" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Location based smart gate caller"
+            android:id="@+id/textView2"
+            android:textColor="#FFFFFF"
+            android:textSize="70px" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#A9A9A9"
+        android:gravity="center_horizontal">
+
+        <Spinner
+            android:layout_width="320dp"
+            android:layout_height="45dp"
+            android:id="@+id/radius"
+            android:alpha="0.2"
+            android:background="#FFFFFF"
+            android:layout_marginBottom="20dp"
+            android:focusable="false" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/phone"
+            android:hint="Phone Number"
+            android:phoneNumber="true"
+            android:alpha="0.2"
+            android:width="320dp"
+            android:background="#FFFFFF"
+            android:paddingLeft="10dp"
+            android:layout_marginBottom="15dp" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:inputType="textPostalAddress"
+            android:ems="10"
+            android:id="@+id/location"
+            android:hint="Enter Location"
+            android:phoneNumber="true"
+            android:alpha="0.2"
+            android:width="320dp"
+            android:background="#FFFFFF"
+            android:paddingLeft="10dp"
+            android:layout_marginBottom="15dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center_horizontal">
+
+        <ImageButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageButton"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/update"
+            android:background="#A9A9A9"
+            android:paddingLeft="10dp"
+            android:onClick="OnUpdateClicked"/>
+    </LinearLayout>
+</LinearLayout>
+
