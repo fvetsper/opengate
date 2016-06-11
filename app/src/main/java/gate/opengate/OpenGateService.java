@@ -2,7 +2,6 @@ package gate.opengate;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -18,6 +17,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -30,9 +30,11 @@ import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 
-import android.os.PowerManager.WakeLock;
-
-import static gate.opengate.Constants.*;
+import static gate.opengate.Constants.ADDRESS_LATITUDE_KEY;
+import static gate.opengate.Constants.ADDRESS_LONGITUDE_KEY;
+import static gate.opengate.Constants.OPEN_GATE_IDENTIFIER;
+import static gate.opengate.Constants.PHONE_NUMBER_KEY;
+import static gate.opengate.Constants.RADIUS_KEY;
 
 
 /**

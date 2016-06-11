@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -63,6 +64,7 @@ public class OpenGateActivity extends Activity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapter.add("100 meter");
         adapter.add("200 meter");
+        adapter.add("300 meter");
         adapter.add("400 meter");
         adapter.add("Region Distance");
         Spinner spinner = (Spinner) findViewById(R.id.radius);
@@ -75,17 +77,14 @@ public class OpenGateActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.setStatusBarColor(Color.GRAY);
         }
-
-        Intent intent = new Intent(this, OpenGateService.class);
-        startService(intent);
     }
 
     @Override
     public void onStart() {
         Log.i("onStart", "entering");
         super.onStart();
+        setPreferences();
         Intent incomingIntent = getIntent();
-        //TextView view = (TextView)findViewById(R.id.message);
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(incomingIntent.getAction())) {
             Parcelable[] rawMsg = incomingIntent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
             if (rawMsg != null && rawMsg.length == 1) {
@@ -93,16 +92,12 @@ public class OpenGateActivity extends Activity {
                 NdefRecord[] records = msg.getRecords();
                 if(records != null) {
                     String key = parseRecord(records[0]);
-                    Log.i("onStart", key);
                     if(!key.equals(SECRET)){
-                        //view.setText("The device are not recognized! Please use the orignal Tag.");
                         return;
                     }
                 }
 
             }
-            //view.setText("The device are recognized! We are ready.");
-            Intent intent = new Intent(this, OpenGateService.class);
 
             mConnection = new ServiceConnection() {
 
@@ -117,9 +112,32 @@ public class OpenGateActivity extends Activity {
 
                 }
             };
-
-            bindService(intent, mConnection, 0);
+            Intent serviceIntent = new Intent(this, OpenGateService.class);
+            startService(serviceIntent);
+            bindService(serviceIntent, mConnection, 0);
         }
+    }
+
+    private void setPreferences() {
+        String gatePhoneNumber = getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).getString(PHONE_NUMBER_KEY, null);
+        if(gatePhoneNumber != null) {
+            EditText phoneEditText = (EditText) findViewById(R.id.phone);
+            phoneEditText.getText().clear();
+            phoneEditText.getText().append(gatePhoneNumber);
+        }
+        String radius = getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).getString(RADIUS_KEY, null);
+        if (radius != null) {
+            Spinner spinner = (Spinner) findViewById(R.id.radius);
+            spinner.setSelection(Integer.parseInt(radius) / 100 - 1);
+
+        }
+        String address = getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).getString(ADDRESS_KEY, null);
+        if (address != null) {
+            EditText locationEditText = (EditText) findViewById(R.id.location);
+            locationEditText.getText().clear();
+            locationEditText.getText().append(address);
+        }
+
     }
 
     @Override
@@ -135,22 +153,27 @@ public class OpenGateActivity extends Activity {
         EditText phoneEditText = (EditText) findViewById(R.id.phone);
         String phoneNumber = phoneEditText.getText().toString();
         EditText locationEditText = (EditText) findViewById(R.id.location);
-        Address location = getLocationFromAddress(locationEditText.getText().toString());
+        SharedPreferences.Editor editor = getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).edit();
+
+        String address = locationEditText.getText().toString();
+        editor.putString(ADDRESS_KEY, address);
+        Address location = getLocationFromAddress(address);
         Spinner radiusSpinner = (Spinner)findViewById(R.id.radius);
         String radius = radiusSpinner.getSelectedItem().toString();
         radius = radius.substring(0, radius.indexOf("meter") - 1);
         Log.i("radius", radius);
         Log.i("phoneNumber", phoneNumber);
 
-        getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).edit().putString(PHONE_NUMBER_KEY, phoneNumber);
+
+        editor.putString(PHONE_NUMBER_KEY, phoneNumber);
         if(location != null) {
             Log.i("location", String.valueOf(location.getLatitude()));
-            getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).edit().putString(ADDRESS_LATITUDE_KEY, Double.toString(location.getLatitude()));
-            getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).edit().putString(ADDRESS_LONGITUDE_KEY, Double.toString(location.getLongitude()));
+            editor.putString(ADDRESS_LATITUDE_KEY, Double.toString(location.getLatitude()));
+            editor.putString(ADDRESS_LONGITUDE_KEY, Double.toString(location.getLongitude()));
         }
-        getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).edit().putString(RADIUS_KEY, radius);
+        editor.putString(RADIUS_KEY, radius);
 
-        getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).edit().commit();
+        editor.commit();
     }
 
     private String parseRecord(NdefRecord record) {
