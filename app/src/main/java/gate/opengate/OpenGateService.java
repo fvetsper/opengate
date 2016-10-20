@@ -273,17 +273,4 @@ public class OpenGateService extends Service {
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
     }
-
-    private void callNumber(String number) {
-        Log.i("callNumber", number);
-        Intent callIntent = new Intent(Intent.ACTION_CALL);
-        callIntent.setData(Uri.parse("tel:" + number));
-        callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(),
-                Manifest.permission.CALL_PHONE);
-        Log.d("permissionCheck", "" + permissionCheck);
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            startActivity(callIntent);
-        }
-    }
 }

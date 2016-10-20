@@ -1,13 +1,11 @@
 package gate.opengate;
 
+import android.Manifest;
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
+import android.content.*;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
+import android.location.*;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -15,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,10 +31,6 @@ import java.util.List;
 import static gate.opengate.Constants.*;
 
 public class OpenGateActivity extends Activity {
-
-
-    private OpenGateService mBoundService;
-    private ServiceConnection mConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,23 +94,19 @@ public class OpenGateActivity extends Activity {
 
             }
 
-            mConnection = new ServiceConnection() {
+            requestSingleUpdate();
 
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    mBoundService = ((OpenGateService.LocalBinder)service).getService();
-                    mBoundService.startListen();
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-
-                }
-            };
-            Intent serviceIntent = new Intent(this, OpenGateService.class);
-            startService(serviceIntent);
-            bindService(serviceIntent, mConnection, 0);
         }
+    }
+
+
+    private void requestSingleUpdate() {
+        Log.i("OpenGateService", "requestSingleUpdate");
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
     }
 
     private void setPreferences() {
@@ -173,7 +164,7 @@ public class OpenGateActivity extends Activity {
         }
         editor.putString(RADIUS_KEY, radius);
 
-        editor.commit();
+        editor.apply();
     }
 
     private String parseRecord(NdefRecord record) {
@@ -184,13 +175,12 @@ public class OpenGateActivity extends Activity {
             int languageCodeLength = payload[0] & 0077;
             String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
             text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
-        } catch (Exception e) {
-
+        } catch (Exception ignored) {
         }
         return text;
     }
 
-    public Address getLocationFromAddress(String strAddress){
+    private Address getLocationFromAddress(String strAddress){
         Address address = null;
         Geocoder coder = new Geocoder(this);
         try {
@@ -203,4 +193,45 @@ public class OpenGateActivity extends Activity {
         }
         return address;
     }
+
+
+    private LocationListener locationListener = new LocationListener() {
+
+        @Override
+        public void onLocationChanged(Location location) {
+            Log.i("onLocationChanged", "entering");
+            Location homeLocation = new Location("");
+            double myHomeLatitude = Double.valueOf(
+                    getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).getString(ADDRESS_LATITUDE_KEY, null));
+            double myHomeLongitude = Double.valueOf(
+                    getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).getString(ADDRESS_LONGITUDE_KEY, null));
+            String myOpenGatePhoneNumber = getSharedPreferences(OPEN_GATE_IDENTIFIER, MODE_PRIVATE).getString(PHONE_NUMBER_KEY, null);
+            homeLocation.setLatitude(myHomeLatitude);
+            homeLocation.setLongitude(myHomeLongitude);
+            float distance = location.distanceTo(homeLocation);
+            Log.i("onLocationChanged", String.valueOf(distance));
+            if (distance <= MY_HOME_RADIUS) {
+                mGoogleApiClient.disconnect();
+                callNumber(myOpenGatePhoneNumber);
+                stopSelf();
+            } else {
+                setProximityAlert();
+            }
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
 }
